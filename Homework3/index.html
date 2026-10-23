@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BitStream Lab - Hean Matt - Homework 3</title>
+<style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fa;color:#203247}
+.shell{max-width:1180px;margin:auto;padding:26px}header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-bottom:20px;border-bottom:1px solid #dce4ec}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800}.brand-mark{width:43px;height:43px;display:grid;place-items:center;border-radius:13px;background:#235d8c;color:white}
+.owner{font-size:13px}.eyebrow{font-size:11px;letter-spacing:1.7px;font-weight:800;margin:0 0 12px}
+.page-intro{padding:38px 0 25px}.page-intro h1{font-size:clamp(30px,4vw,48px);letter-spacing:-1.7px;line-height:1.08;max-width:840px;margin:0 0 15px}
+.intro,.muted{font-size:14px;line-height:1.6;color:#65758a}.layout{display:grid;grid-template-columns:1.3fr 1fr;gap:23px}
+.hero,.result{padding:28px;border:1px solid #dde5ec;border-radius:20px;background:white}h2{font-size:26px;letter-spacing:-.6px;margin:0 0 15px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end;margin:22px 0}
+label{display:block;font-size:12px;font-weight:700}input,select{display:block;width:100%;padding:12px;border:1px solid #ccd7e1;border-radius:9px;margin-top:7px;font:inherit;background:#fff;color:inherit}
+button{border:0;border-radius:9px;padding:13px 17px;background:#235d8c;color:white;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+button:hover{filter:brightness(.93)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #e6b45e;outline-offset:3px}
+.secondary{background:#e9eef4!important;color:#34455b!important}.small{padding:8px 10px;font-size:11px;margin:2px}
+.huge{font-size:clamp(35px,5vw,59px);font-weight:800;letter-spacing:-2px;margin:22px 0}
+.note{padding:15px;border-radius:12px;font-size:13px;line-height:1.5;margin-top:25px;background:#f0f4f9}
+.list{list-style:none;padding:0;margin:20px 0}.list li{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #d8e1e8}
+.list li>span:first-of-type{flex:1;overflow-wrap:anywhere}.list input[type=checkbox]{width:18px;margin:0}.progress{height:9px;background:#dfe8e3;border-radius:10px;overflow:hidden;margin:23px 0}
+.progress span{display:block;height:100%;width:0;background:#2b7660;transition:width .2s}.table-scroll{overflow-x:auto}
+.status{display:flex;flex-wrap:wrap;justify-content:space-between;gap:15px;background:#edf3f8;border:1px solid #dbe5ee;border-radius:13px;padding:14px 17px;margin-top:26px;font-size:12px}
+#version{font-family:monospace;font-weight:800}#release-note{margin:0}.status strong{font-size:12px}
+@media(max-width:800px){.layout{grid-template-columns:1fr!important}.fields{grid-template-columns:1fr!important}.shell{padding:18px}.hero,.result{padding:22px}header{align-items:flex-start}.owner{max-width:125px;text-align:right}.metrics{gap:6px!important}.metrics div{padding:12px!important}}
+
+body{background:#0b1422;color:#e8f1fc}header{border-color:#ffffff1a}
+.brand-mark{background:#48dcba;color:#08221c}.muted,.intro{color:#adbed3}
+.layout{grid-template-columns:1.15fr .85fr}.hero,.result{background:#142236;border-color:#263c56}
+input,select{background:#0b1728;color:#e8f1fc;border-color:#3e5571}
+button{background:#48dcba;color:#08221c}.transfer-result{background:linear-gradient(140deg,#16344c,#123e3b)}
+.huge{color:#67f0cd}.note{background:#ffffff10;color:#c4d7e8}.fields{grid-template-columns:1.5fr .8fr 1.5fr}
+.status{background:#122b3c;border-color:#284b63;color:#dceefa}</style></head><body><div class="shell">
+<header><div class="brand"><span class="brand-mark">M</span>BitStream Lab</div><div class="owner">Hean Matt / Homework 3</div></header>
+<section class="page-intro"><p class="eyebrow">NETWORK TOOL / TRANSFER DESK</p><h1>Know your transfer time.</h1><p class="intro">Turn a file size and a connection speed into an ideal transfer estimate.</p></section>
+<main class="layout"><section class="hero"><p class="eyebrow">QUICK ESTIMATE</p>
+<h2>Big file. Small calculation.</h2><p>Choose the size and link speed below.</p>
+<div class="fields">
+<label>File size<input id="file-size" type="number" min="0" step="any" value="500"></label>
+<label>Unit<select id="file-unit"><option value="1">MB</option><option value="1000">GB</option></select></label>
+<label>Connection (Mbps)<input id="link-speed" type="number" min="0.1" step="any" value="20"></label>
+</div><button id="calculate" type="button">Calculate time</button>
+<p class="muted">Decimal units: 1 GB = 1,000 MB. Estimate assumes full link speed.</p></section>
+<section class="result transfer-result"><p class="eyebrow">ESTIMATED DURATION</p>
+<p class="huge" id="transfer-result">3m 20s</p><p id="transfer-detail"></p>
+<div class="note">Real transfers can take longer because of protocol overhead, Wi-Fi, and server limits.</div></section></main>
+<footer class="status"><span><strong>Deployed version:</strong> <span id="version">Loading...</span></span><p id="release-note">First release.</p></footer>
+</div><script>
+'use strict';
+const $=id=>document.getElementById(id);
+function loadData(key,fallback){try{const value=localStorage.getItem(key);return value===null?fallback:JSON.parse(value);}catch(e){return fallback;}}
+function saveData(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch(e){}}
+function calculateTransfer(){
+ const size=Number($('file-size').value), unit=Number($('file-unit').value);
+ const speed=Number($('link-speed').value);
+ if(!Number.isFinite(size)||size<0||!Number.isFinite(speed)||speed<=0){
+  $('transfer-result').textContent='Check inputs';
+  $('transfer-detail').textContent='Use a non-negative size and a positive speed.';return;
+ }
+ const seconds=Math.ceil(size*unit*8/speed);
+ const hours=Math.floor(seconds/3600), minutes=Math.floor(seconds%3600/60), rest=seconds%60;
+ $('transfer-result').textContent=(hours?hours+'h ':'')+(minutes?minutes+'m ':'')+rest+'s';
+ $('transfer-detail').textContent=(size*unit).toLocaleString()+' MB at '+speed+' Mbps';
+}
+$('calculate').addEventListener('click',calculateTransfer);
+['file-size','file-unit','link-speed'].forEach(id=>$(id).addEventListener('input',calculateTransfer));
+calculateTransfer();
+async function refreshVersion(){
+ try{const response=await fetch('/version.txt',{cache:'no-store'});
+ if(!response.ok)throw Error('version unavailable');
+ $('version').textContent=(await response.text()).trim();}
+ catch(e){$('version').textContent='Unavailable';}
+}
+refreshVersion();setInterval(refreshVersion,3000);
+</script></body></html>

@@ -26,8 +26,8 @@ Do not initialize nested Git repositories inside Homework2 or Homework3.
 
 Use each folder's direct GitHub link for its teacher submission, for example:
 
-- https://github.com/heanmatt/MyHomework/tree/main/Homework2
-- https://github.com/heanmatt/MyHomework/tree/main/Homework3
+- https://github.com/heanmatt/Homework2_3/tree/main/Homework2
+- https://github.com/heanmatt/Homework2_3/tree/main/Homework3
 
 Actual submission values:
 
